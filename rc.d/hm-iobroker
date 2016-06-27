@@ -36,6 +36,7 @@ case "$1" in
     echo "Version: $(cat ${WWWDIR}/VERSION)"
     echo "Name: hm-iobroker"
     echo "Operations: uninstall restart"
+    echo "Config-Url: /addons/${ADDONNAME}/"
     echo "Update: /addons/${ADDONNAME}/update-check.cgi"
     ;;
 

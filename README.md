@@ -1,3 +1,5 @@
+# This Project/Addon is still WORK-IN-PROGRESS and not finished yet!
+
 ## ioBroker CCU Addon – hm-iobroker
 A HomeMatic CCU Addon package allowing to install ioBroker (www.iobroker.net) directly on a CCU device.
 

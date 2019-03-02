@@ -1,0 +1,7 @@
+Installer version: 2019-02-03
+Installation date 2019-02-08
+Platform: linux
+Installed as non-root user pi
+init system: systemd
+Autostart: systemd
+ACL enabled: true

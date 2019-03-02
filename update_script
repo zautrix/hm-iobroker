@@ -1,0 +1,55 @@
+#!/bin/sh
+
+ADDONNAME=hm-iobroker
+CONFIGDIR=/usr/local/etc/config
+ADDONDIR=/usr/local/addons/${ADDONNAME}
+RCDDIR=${CONFIGDIR}/rc.d
+WWWDIR=${CONFIGDIR}/addons/www/${ADDONNAME}
+ADMINDIR=${ADDONDIR}/addon_admin
+
+if [ "$1" = "" ]; then
+  lcdtool "CCU1 not supported... "
+  exit 11
+elif [ "$1" = "CCU2" ]; then
+  lcdtool "CCU2 not supported... "
+  exit 12
+elif [ "$1" = "CCU3" ]; then
+  lcdtool "CCU3 not supported... "
+  exit 13
+elif [ "$1" = "HM-RASPBERRYMATIC" ]; then
+  lcdtool "CCU4 is supported... "
+fi
+
+  mkdir -p ${ADDONDIR}
+  chmod 777 ${ADDONDIR}
+
+  mkdir -p ${RCDDIR}
+  chmod 755 ${RCDDIR}
+
+  rm -rf ${ADDONDIR}/*
+
+  mkdir -p ${ADMINDIR}
+  chmod 777 ${ADMINDIR}
+
+  cp -r iob/iodata/* ${ADDONDIR}/
+
+  cp -f iob/* ${ADMINDIR}
+
+  cp -af rc.d/* ${RCDDIR}
+
+
+rm -rf /usr/local/etc/config/addons/www/${ADDONNAME}
+
+
+cp -af www ${ADDONDIR}/
+if [ ! -e ${WWWDIR} ]; then
+  ln -sf ${ADDONDIR}/www ${WWWDIR}
+fi
+
+
+chmod +x ${RCDDIR}/24_iob_server
+touch /usr/local/etc/config/hm_addons.cfg
+${ADMINDIR}/update_addon hm-iobroker ${ADMINDIR}/hm-iobroker-addon.cfg
+
+
+sync

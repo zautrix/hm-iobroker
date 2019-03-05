@@ -1,0 +1,86 @@
+#!/bin/sh
+
+export NODE_PATH=/usr/lib/node_modules
+ADDONNAME=hm-iobroker
+CONFIGDIR=/usr/local/etc/config
+ADDONDIR=/usr/local/addons/${ADDONNAME}
+EXEC=node
+EXECARGS=${ADDONDIR}/node_modules/iobroker.js-controller/controller.js
+PIDFILE=/var/run/hm_iobroker.pid
+#nmp should not write to /root dir, it is mounted readonly
+export npm_config_cache=${ADDONDIR}/npm_io/.npm
+#the next line is not a good idea. if enabled it does not install any more properly
+#export npm_config_init-module=${ADDONDIR}/.npm-init.js
+export npm_config_userconfig=${ADDONDIR}/npm_io/.npmrc
+#start with
+#/usr/bin/node /usr/local/addons/hm-iobroker/node_modules/iobroker.js-controller/controller.js
+# change to addon directory
+cd ${ADDONDIR}
+
+do_start()
+{
+  # used at system start
+  start-stop-daemon --start --quiet --oknodo --make-pidfile --background  --pidfile $PIDFILE --exec $EXEC $EXECARGS
+}
+
+do_stop()
+{
+  start-stop-daemon --stop --quiet  --oknodo  --retry 5  --pidfile $PIDFILE
+
+  if [ -e $PIDFILE ];then
+    rm -f $PIDFILE
+  fi
+
+  #from iobroker killall
+  pgrep -f '^io.*' | xargs kill -9  
+  #pgrep -f '^node-red*' | xargs kill -9  
+}
+
+case "$1" in
+
+  ""|start)
+    do_start
+  ;;
+
+  stop)
+    do_stop
+  ;;
+
+  restart)
+    do_stop
+    sleep 2
+    do_start
+  ;;
+ 
+  info)
+    echo "Info: <b>ioBroker CCU Addon</b><br>"
+    echo "Info: Copyright (c) 2019 ioBroker Addon developers<br>"
+    echo "Info: <a href='https://github.com/jens-maus/hm-iobroker'>https://github.com/jens-maus/hm-iobroker</a>"
+    echo "Version: $(cat ${ADDONDIR}/VERSION)"
+    echo "Name: hm-iobroker"
+    echo "Operations: uninstall"
+    echo "Config-Url: :8081/"
+    echo "Update: /addons/${ADDONNAME}/www/update-check.cgi"
+  ;;
+
+  uninstall)
+    # make sure to stop ioBroker first
+    do_stop
+
+    # remove the addon button
+    ${ADDONDIR}/addon_admin/update_addon hm-iobroker
+
+    # remove the whole addon related stuff
+    rm -rf /usr/local/etc/config/addons/www/${ADDONDIR}
+    rm -rf ${ADDONDIR}
+    rm -rf /etc/config/rc.d/hm-iobroker
+  ;;
+
+  *)
+    echo "Usage: ${ADDONNAME} {info|start|stop|restart|uninstall}"
+    exit 1
+  ;;
+
+esac
+
+exit $?

@@ -3,7 +3,7 @@ if ( [ "$2" = "" ]  ) && ([ "$1" = "start" ] || [ "$1" = "stop" ] || [ "$1" = "r
 #start/stop command from linux distribution not working here
 #sudo systemctl $1 iobroker
 #start here with with
-  /usr/local/etc/config/rc.d/24_iob_server $1
+  /usr/local/etc/config/rc.d/hm-iobroker $1
 else
 node /usr/local/addons/hm-iobroker/node_modules/iobroker.js-controller/iobroker.js $1 $2 $3 $4 $5
 fi

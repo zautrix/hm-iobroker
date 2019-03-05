@@ -7,18 +7,14 @@ RCDDIR=${CONFIGDIR}/rc.d
 WWWDIR=${CONFIGDIR}/addons/www/${ADDONNAME}
 ADMINDIR=${ADDONDIR}/addon_admin
 
-if [ "$1" = "" ]; then
-  lcdtool "CCU1 not supported... "
-  exit 11
-elif [ "$1" = "CCU2" ]; then
-  lcdtool "CCU2 not supported... "
-  exit 12
-elif [ "$1" = "CCU3" ]; then
-  lcdtool "CCU3 not supported... "
-  exit 13
-elif [ "$1" = "HM-RASPBERRYMATIC" ]; then
-  lcdtool "CCU4 is supported... "
-fi
+if [ "$1" == "HM-RASPBERRYMATIC" ]; then
+  echo "HM-RASPBERRYMATIC"
+
+  # mount /usr/local if not already mounted
+  mount | grep /usr/local 2>&1 >/dev/null
+  if [ $? -eq 1 ]; then
+    mount /usr/local
+  fi
 
   mkdir -p ${ADDONDIR}
   chmod 777 ${ADDONDIR}
@@ -37,19 +33,22 @@ fi
 
   cp -af rc.d/* ${RCDDIR}
 
+  rm -rf /usr/local/etc/config/addons/www/${ADDONNAME}
 
-rm -rf /usr/local/etc/config/addons/www/${ADDONNAME}
+  cp -af www ${ADDONDIR}/
+  if [ ! -e ${WWWDIR} ]; then
+    ln -sf ${ADDONDIR}/www ${WWWDIR}
+  fi
 
+  chmod +rx ${RCDDIR}/iobroker
+  touch /usr/local/etc/config/hm_addons.cfg
+  ${ADMINDIR}/update_addon hm-iobroker ${ADMINDIR}/hm-iobroker-addon.cfg
 
-cp -af www ${ADDONDIR}/
-if [ ! -e ${WWWDIR} ]; then
-  ln -sf ${ADDONDIR}/www ${WWWDIR}
+  sync
+else
+  echo "Unsupported CCU platform: '$1'"
 fi
 
-
-chmod +x ${RCDDIR}/24_iob_server
-touch /usr/local/etc/config/hm_addons.cfg
-${ADMINDIR}/update_addon hm-iobroker ${ADMINDIR}/hm-iobroker-addon.cfg
-
-
-sync
+# exit with 0 to signal install succeeded and no reboot
+# is required
+exit 0

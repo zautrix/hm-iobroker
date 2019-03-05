@@ -11,9 +11,10 @@ cp -a update_script tmp/
 cp -a rc.d tmp/
 cp -a www tmp/
 cp -a VERSION tmp/www/
-cp -a ccu2 tmp/
-cp -a ccurm tmp/
-cp -a common tmp/
+cp -a iob tmp/
+cp -a VERSION tmp/iob/
+cp -a VERSION tmp/iob/iodata
+
 
 # generate archive
 cd tmp

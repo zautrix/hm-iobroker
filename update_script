@@ -1,53 +1,55 @@
 #!/bin/sh
 
 ADDONNAME=hm-iobroker
-CONFIG_DIR=/usr/local/etc/config
-ADDON_DIR=/usr/local/addons/${ADDONNAME}
-RCD_DIR=${CONFIG_DIR}/rc.d
-WWW_DIR=${CONFIG_DIR}/addons/www/${ADDONNAME}
+CONFIGDIR=/usr/local/etc/config
+ADDONDIR=/usr/local/addons/${ADDONNAME}
+RCDDIR=${CONFIGDIR}/rc.d
+WWWDIR=${CONFIGDIR}/addons/www/${ADDONNAME}
+ADMINDIR=${ADDONDIR}/addon_admin
 
-# make sure this addon is only executed on
-# supported platforms
 if [ "$1" = "" ]; then
   lcdtool "CCU1 not supported... "
-  exit 1
+  exit 11
+elif [ "$1" = "CCU2" ]; then
+  lcdtool "CCU2 not supported... "
+  exit 12
+elif [ "$1" = "CCU3" ]; then
+  lcdtool "CCU3 not supported... "
+  exit 13
+elif [ "$1" = "HM-RASPBERRYMATIC" ]; then
+  lcdtool "CCU4 is supported... "
 fi
 
-# mount /usr/local if not already mounted
-mount | grep /usr/local 2>&1 >/dev/null
-if [ $? -eq 1 ]; then
-  mount /usr/local
+  mkdir -p ${ADDONDIR}
+  chmod 777 ${ADDONDIR}
+
+  mkdir -p ${RCDDIR}
+  chmod 755 ${RCDDIR}
+
+  rm -rf ${ADDONDIR}/*
+
+  mkdir -p ${ADMINDIR}
+  chmod 777 ${ADMINDIR}
+
+  cp -r iob/iodata/* ${ADDONDIR}/
+
+  cp -f iob/* ${ADMINDIR}
+
+  cp -af rc.d/* ${RCDDIR}
+
+
+rm -rf /usr/local/etc/config/addons/www/${ADDONNAME}
+
+
+cp -af www ${ADDONDIR}/
+if [ ! -e ${WWWDIR} ]; then
+  ln -sf ${ADDONDIR}/www ${WWWDIR}
 fi
 
-# create necessary directories
-mkdir -p ${ADDON_DIR}
-chmod 755 ${ADDON_DIR}
-mkdir -p ${RCD_DIR}
-chmod 755 ${RCD_DIR}
 
-# copy addon (common stuff)
-cp -af common/* ${ADDON_DIR}/
-
-# copy addon (CCU dependent stuff)
-if [ "$1" = "CCU2" ]; then
-  cp -af ccu2/* ${ADDON_DIR}/
-elif [ "$1" == "HM-RASPBERRYMATIC" ]; then
-  cp -af ccurm/* ${ADDON_DIR}/
-fi
-
-# copy startup script
-cp -af rc.d/* ${RCD_DIR}
-
-# copy www stuff
-cp -af www ${ADDON_DIR}/
-if [ ! -e ${WWW_DIR} ]; then
-  ln -sf ${ADDON_DIR}/www ${WWW_DIR}
-fi
-
-# add menu entry
+chmod +x ${RCDDIR}/24_iob_server
 touch /usr/local/etc/config/hm_addons.cfg
-${ADDON_DIR}/bin/update_addon hm-iobroker ${ADDON_DIR}/etc/hm-iobroker-addon.cfg
+${ADMINDIR}/update_addon hm-iobroker ${ADMINDIR}/hm-iobroker-addon.cfg
 
-# synchronize filesystem before performing a reboot
-# afterwards
+
 sync

@@ -1,0 +1,87 @@
+#!/bin/sh
+
+export NODE_PATH=/usr/lib/node_modules
+ADDONNAME=hm-iobroker
+CONFIGDIR=/usr/local/etc/config
+ADDONDIR=/usr/local/addons/${ADDONNAME}
+EXEC=node
+EXECARGS=${ADDONDIR}/node_modules/iobroker.js-controller/controller.js
+PIDFILE=/var/run/hm_iobroker.pid
+#nmp should not write to /root dir, it is mounted readonly
+export npm_config_cache=${ADDONDIR}/npm_io/.npm
+#the next line is not a good idea. if enabled it does not install any more properly
+#export npm_config_init-module=${ADDONDIR}/.npm-init.js
+export npm_config_userconfig=${ADDONDIR}/npm_io/.npmrc
+#start with
+#/usr/bin/node /usr/local/addons/hm-iobroker/node_modules/iobroker.js-controller/controller.js
+# change to addon directory
+cd ${ADDONDIR}
+
+do_start()
+{
+        # used at system start
+	start-stop-daemon --start --quiet --oknodo --make-pidfile --background  --pidfile $PIDFILE --exec $EXEC $EXECARGS
+}
+
+do_stop()
+{
+
+        start-stop-daemon --stop --quiet  --oknodo  --retry 5  --pidfile $PIDFILE
+	if [ -e $PIDFILE ];then
+		rm $PIDFILE
+	fi
+       #from iobroker killall
+       pgrep -f '^io.*' | xargs kill -9 	
+       #pgrep -f '^node-red*' | xargs kill -9	
+}
+
+case "$1" in
+  ""|start)
+   		do_start
+   		echo "START OK"
+
+    ;;
+   # restart not working, disabled below
+   # echo "Operations: restart uninstall"
+  info)
+    VER=$(cat ${ADDONDIR}/VERSION)
+    echo "Version: ${VER}"
+    echo "Info: <b>ioBroker addon (initial adapters)</b><br>"
+    echo "Info: Copyright (c) by the iobroker developers"
+    echo "Info: <a href='http://www.iobroker.net'></a>"
+    echo "Name: hm-iobroker"
+    echo "Operations: uninstall"
+    echo "Update: /addons/hm-iobroker/www/update-check.cgi"
+    ;;
+
+  stop)
+
+	do_stop
+	echo "STOP OK"
+    ;;
+    
+  restart)
+	do_stop
+	do_start
+       echo "RESTART OK"
+
+    ;;
+    
+  uninstall)
+    ${ADDONDIR}/addon_admin/update_addon hm-iobroker
+    rm -rf /usr/local/etc/config/addons/www/${ADDONDIR}
+    rm -rf ${ADDONDIR}
+    rm -rf /etc/config/rc.d/24_iob_server
+    do_stop
+    echo "UNINSTALL OK"
+    exit 0
+    ;;
+
+  *)
+    	echo "usage:"
+    	echo "  ${ADDONNAME} [info|start|stop|restart|uninstall]"
+	exit 1
+    ;;
+esac
+
+exit 0

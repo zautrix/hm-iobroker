@@ -1,0 +1,9 @@
+.gitattributes
+.gitignore
+.git
+test
+.travis.yml
+appveyor.yml
+.ba
+npm-debug.log
+

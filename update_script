@@ -7,7 +7,7 @@ RCDDIR=${CONFIGDIR}/rc.d
 WWWDIR=${CONFIGDIR}/addons/www/${ADDONNAME}
 ADMINDIR=${ADDONDIR}/addon_admin
 
-if [ "$1" == "HM-RASPBERRYMATIC" ]; then
+if [ "$1" == "HM-RASPBERRYMATIC" ]  || [ "$1" == "CCU3" ] ; then
   echo "HM-RASPBERRYMATIC"
 
   # mount /usr/local if not already mounted
@@ -27,7 +27,10 @@ if [ "$1" == "HM-RASPBERRYMATIC" ]; then
   mkdir -p ${ADMINDIR}
   chmod 777 ${ADMINDIR}
 
-  cp -r iob/iodata/* ${ADDONDIR}/
+  #cp -r iob/iodata/* ${ADDONDIR}/
+  tar xfvz iob/iodata.tar.gz -C ${ADDONDIR}/   
+  #patch files. maybe needs to be changed if we have more files                    
+  cp -r modified_iodata_files/* ${ADDONDIR}/
 
   cp -f iob/* ${ADMINDIR}
 

@@ -12,8 +12,10 @@ cp -a rc.d tmp/
 cp -a www tmp/
 cp -a VERSION tmp/www/
 cp -a iob tmp/
+cp -a modified_iodata_files tmp/
 cp -a VERSION tmp/iob/
-cp -a VERSION tmp/iob/iodata
+cp -a VERSION tmp/modified_iodata_files/
+
 
 
 # generate archive

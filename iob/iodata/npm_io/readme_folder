@@ -1,3 +1,0 @@
-folder for npm to put some config or cache data in
-the home directory of root (i.e. /root) is not available for this data, because
-/root is located on a readonly mounted file system

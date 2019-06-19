@@ -1,0 +1,17 @@
+Howto update iobroker installtion
+
+- Update any adapter in ioBroker gui
+
+- Update ioBroker host (i.e. js-controller ) in this way:
+
+Log on as root (via ssh) into console and run the following commands:
+(ignore any "gyp ERR! ..." messages during upgrade)
+(ignore "npm update check failed" message)
+
+cd /usr/local/addons/hm-iobroker
+./iobroker stop
+export npm_config_cache=/usr/local/addons/hm-iobroker/npm_io/.npm
+export npm_config_userconfig=/usr/local/addons/hm-iobroker/npm_io/.npmrc
+./iobroker update
+./iobroker upgrade self
+./iobroker start
